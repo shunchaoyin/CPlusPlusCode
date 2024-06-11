@@ -8,7 +8,6 @@ using namespace std;
 #include "ClassRegister.h"
 using namespace yazi::reflect;
 
-
 class A : public Object
 {
 public:

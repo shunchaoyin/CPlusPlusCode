@@ -6,7 +6,6 @@ using namespace std;
 #include "ClassRegister.h"
 using namespace yazi::reflect;
 
-
 class B : public Object
 {
 public:

@@ -8,9 +8,9 @@ using namespace yazi::reflect;
 
 int main()
 {
-    ClassFactory * factory = Singleton<ClassFactory>::instance();
-    Object * a = factory->create_class("A");
-    
+    ClassFactory *factory = Singleton<ClassFactory>::instance();
+    Object *a = factory->create_class("A");
+
     string name;
     a->get("m_name", name);
     a->set("m_name", "kitty");

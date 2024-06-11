@@ -9,12 +9,12 @@ Object::~Object()
 {
 }
 
-void Object::set_class_name(const string & className)
+void Object::set_class_name(const string &className)
 {
     m_className = className;
 }
 
-const string & Object::get_class_name() const
+const string &Object::get_class_name() const
 {
     return m_className;
 }
@@ -24,37 +24,37 @@ int Object::get_field_count()
     return Singleton<ClassFactory>::instance()->get_class_field_count(m_className);
 }
 
-ClassField * Object::get_field(int pos)
+ClassField *Object::get_field(int pos)
 {
     return Singleton<ClassFactory>::instance()->get_class_field(m_className, pos);
 }
 
-ClassField * Object::get_field(const string & fieldName)
+ClassField *Object::get_field(const string &fieldName)
 {
     return Singleton<ClassFactory>::instance()->get_class_field(m_className, fieldName);
 }
 
-void Object::set(const string & fieldName, const char * value)
+void Object::set(const string &fieldName, const char *value)
 {
-    ClassField * field = Singleton<ClassFactory>::instance()->get_class_field(m_className, fieldName);
+    ClassField *field = Singleton<ClassFactory>::instance()->get_class_field(m_className, fieldName);
     size_t offset = field->offset();
     *((string *)((unsigned char *)(this) + offset)) = string(value);
 }
 
-void Object::call(const string & methodName)
+void Object::call(const string &methodName)
 {
-    ClassMethod * method = Singleton<ClassFactory>::instance()->get_class_method(m_className, methodName);
+    ClassMethod *method = Singleton<ClassFactory>::instance()->get_class_method(m_className, methodName);
     auto func = method->method();
     typedef std::function<void(decltype(this))> class_method;
     (*(class_method *)(func))(this);
 }
 
-void ClassFactory::register_class(const string & className, create_object method)
+void ClassFactory::register_class(const string &className, create_object method)
 {
     m_classMap[className] = method;
 }
 
-Object * ClassFactory::create_class(const string & className)
+Object *ClassFactory::create_class(const string &className)
 {
     auto it = m_classMap.find(className);
     if (it == m_classMap.end())
@@ -64,17 +64,17 @@ Object * ClassFactory::create_class(const string & className)
     return it->second();
 }
 
-void ClassFactory::register_class_field(const string & className, const string & fieldName, const string & fieldType, size_t offset)
+void ClassFactory::register_class_field(const string &className, const string &fieldName, const string &fieldType, size_t offset)
 {
     m_classFields[className].push_back(new ClassField(fieldName, fieldType, offset));
 }
 
-int ClassFactory::get_class_field_count(const string & className)
+int ClassFactory::get_class_field_count(const string &className)
 {
     return m_classFields[className].size();
 }
 
-ClassField * ClassFactory::get_class_field(const string & className, int pos)
+ClassField *ClassFactory::get_class_field(const string &className, int pos)
 {
     int size = m_classFields[className].size();
     if (pos < 0 || pos >= size)
@@ -84,7 +84,7 @@ ClassField * ClassFactory::get_class_field(const string & className, int pos)
     return m_classFields[className][pos];
 }
 
-ClassField * ClassFactory::get_class_field(const string & className, const string & fieldName)
+ClassField *ClassFactory::get_class_field(const string &className, const string &fieldName)
 {
     auto fields = m_classFields[className];
     for (auto it = fields.begin(); it != fields.end(); it++)
@@ -97,17 +97,17 @@ ClassField * ClassFactory::get_class_field(const string & className, const strin
     return nullptr;
 }
 
-void ClassFactory::register_class_method(const string & className, const string &methodName, uintptr_t method)
+void ClassFactory::register_class_method(const string &className, const string &methodName, uintptr_t method)
 {
     m_classMethods[className].push_back(new ClassMethod(methodName, method));
 }
 
-int ClassFactory::get_class_method_count(const string & className)
+int ClassFactory::get_class_method_count(const string &className)
 {
     return m_classMethods[className].size();
 }
 
-ClassMethod * ClassFactory::get_class_method(const string & className, int pos)
+ClassMethod *ClassFactory::get_class_method(const string &className, int pos)
 {
     int size = m_classMethods[className].size();
     if (pos < 0 || pos >= size)
@@ -117,7 +117,7 @@ ClassMethod * ClassFactory::get_class_method(const string & className, int pos)
     return m_classMethods[className][pos];
 }
 
-ClassMethod * ClassFactory::get_class_method(const string & className, const string & methodName)
+ClassMethod *ClassFactory::get_class_method(const string &className, const string &methodName)
 {
     auto methods = m_classMethods[className];
     for (auto it = methods.begin(); it != methods.end(); it++)
