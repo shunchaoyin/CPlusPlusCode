@@ -5,4 +5,4 @@ include_directories(${PROJECT_SOURCE_DIR}/serialize)
 
 set(execute_output_path ${PROJECT_SOURCE_DIR}/bin)
 file(GLOB_RECURSE serialize_SRC  "serialize/*.cpp")
-add_executable(app main.cpp ${serialize_SRC})
+add_executable(serialize main.cpp ${serialize_SRC})

@@ -8,4 +8,4 @@ file(GLOB SRC_LIST "${CMAKE_CURRENT_SOURCE_DIR}/xml/*.cpp")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-add_executable(main main.cpp ${SRC_LIST})
+add_executable(xml_parser main.cpp ${SRC_LIST})
