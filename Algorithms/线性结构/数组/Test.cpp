@@ -39,6 +39,45 @@ TEST(Array, Insert)
     }
 }
 
+TEST(Array, Push_Back)
+{
+    Array a(6, 5, 0);
+    a.push_back(1);
+    a.push_back(2);
+
+    EXPECT_EQ(a.size(), 7);
+    EXPECT_EQ(a.capacity(), 12);
+    for (int i = 0; i < 5; i++)
+    {
+        EXPECT_EQ(a[i], 0);
+    }
+    EXPECT_EQ(a[5], 1);
+}
+TEST(Array, Remove)
+{
+    Array a(10, 5, 0);
+    a.remove(2, 3);
+    EXPECT_EQ(a.size(), 3);
+    EXPECT_EQ(a.capacity(), 5);
+    for (int i = 0; i < 2; i++)
+    {
+        EXPECT_EQ(a[i], 0);
+    }
+    for (int i = 2; i < 3; i++)
+    {
+        EXPECT_EQ(a[i], 0);
+    }
+    for (int i = 3; i < 5; i++)
+    {
+        EXPECT_EQ(a[i], 0);
+    }
+}
+TEST(Array, Find)
+{
+    Array a(10, 5, 0);
+    EXPECT_EQ(a.find(0), true);
+    EXPECT_EQ(a.find(1), false);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

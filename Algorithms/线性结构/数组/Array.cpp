@@ -193,7 +193,7 @@ int Array::insert(int pos, int e)
     {
         expand();
     }
-    for (int i = _size; i > pos; i++)
+    for (int i = _size; i > pos; i--)
     {
         _elems[i] = _elems[i - 1];
     }

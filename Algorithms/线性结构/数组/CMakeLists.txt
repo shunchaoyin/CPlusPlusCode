@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 
 # 设置项目名称和版本号
 project(Array VERSION 1.0)
-
+# 设置C++标准
 set(CMAKE_CXX_STANDARD 17)
 # 头文件
 include_directories(include)
+# 设置可执行文件输出路径
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 # 引入FetchContent模块
