@@ -26,6 +26,7 @@ TEST(ListLink, getLastNode)
     }
     EXPECT_EQ(linkList.lastNode()->value, 4);
 }
+
 TEST(ListLink, sort)
 {
     LinkedList linkList;
@@ -36,6 +37,18 @@ TEST(ListLink, sort)
     linkList.sort();
     EXPECT_EQ(linkList.firstNode()->value, 0);
     EXPECT_EQ(linkList.lastNode()->value, 4);
+}
+
+TEST(ListLink,reverse)
+{
+    LinkedList linkList;
+    for(int i=0;i<5;i++)
+    {
+        linkList.insert(i,i);
+    }
+    linkList.reverse();
+    EXPECT_EQ(linkList.firstNode()->value,4);
+    EXPECT_EQ(linkList.lastNode()->value,0);
 }
 
 int main(int argc, char *argv[])
