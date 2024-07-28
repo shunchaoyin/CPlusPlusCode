@@ -1,5 +1,4 @@
-
-#include <functional>
+#pragma once
 
 class Node
 {

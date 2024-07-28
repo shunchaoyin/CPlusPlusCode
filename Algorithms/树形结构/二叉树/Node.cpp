@@ -89,10 +89,13 @@ int Node::depth() const
 {
     int lCount = 0;
     int rCount = 0;
+    if (nullptr == this)
+    {
+        return 0;
+    }
     if (nullptr != _lChild)
     {
         lCount = _lChild->depth();
-        // lCount += 1;
     }
     if (nullptr != _rChild)
     {
@@ -105,6 +108,10 @@ int Node::depth() const
 int Node::count(Node *node) const
 {
     int nCount = 0;
+    if (nullptr == node)
+    {
+        return 0;
+    }
     if (node == nullptr)
     {
         return 0;
@@ -124,6 +131,11 @@ int Node::count() const
 {
     int lCount = 0;
     int rCount = 0;
+    if (nullptr == this)
+    {
+        return 0;
+    }
+
     if (nullptr != _lChild)
     {
         lCount = _lChild->count();
@@ -132,7 +144,6 @@ int Node::count() const
     {
         rCount = _rChild->count();
     }
-
     return lCount + rCount + 1;
 }
 

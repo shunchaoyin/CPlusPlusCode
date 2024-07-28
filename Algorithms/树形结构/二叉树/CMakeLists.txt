@@ -25,7 +25,7 @@ include_directories(${GTEST_INCLUDE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # 添加源文件并生成可执行文件
-add_executable(${PROJECT_NAME}  BinaryTree_Test.cpp Node.cpp)
+add_executable(${PROJECT_NAME}  BinaryTree_Test.cpp Node.cpp BinaryTree.cpp)
 
 # 链接GoogleTest库
 target_link_libraries(${PROJECT_NAME} ${GTEST_LIB} ${GTEST_MAIN_LIB})
