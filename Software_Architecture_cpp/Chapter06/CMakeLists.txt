@@ -18,5 +18,6 @@ add_executable(01_raii 01_raii_gurads.cpp)
 add_executable(02_copy_move 02_copy_move.cpp)
 add_executable(03_rules_of_5_and_0  03_rules_of_5_and_0.cpp)
 add_executable(04_hidden_friend_copy_and_swap 04_hidden_friend_copy_and_swap.cpp)
+add_executable(06_policy_based_design 06_policy_based_design.cpp)
 # 链接 GSL 库
 target_link_libraries(GSL::gsl)
