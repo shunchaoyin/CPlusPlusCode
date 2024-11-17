@@ -183,13 +183,30 @@ struct UserProfile
 
 
 ## Chapter 6: Design Patterns and C++
+### 01 RAII
+异常抛出（throw std::runtime_error{"unexpected fault!"};）在 C++ 中确实会增加一些显著的时间消耗。这是因为异常的处理机制在背后涉及了较多的系统操作和资源管理，使得它比普通的函数调用或控制流跳转要复杂得多。让我们详细分析一下为什么异常的抛出和捕获会增加如此多的执行时间。
 
-### “隐藏的友元”？
+异常处理机制复杂
+异常的抛出与捕获并不仅仅是一个简单的函数调用或跳转，而是一个相对复杂的流程。C++ 中的异常处理涉及到许多底层的系统机制，具体包括以下几点：
+
+1. 栈展开：当异常被抛出时，程序会开始栈展开，也就是从异常发生的地方逐步向上（沿调用链）查找可以处理该异常的 catch 语句。在这个过程中，所有在栈上分配的对象都需要被正确析构。栈展开涉及到：
+    反复执行栈帧的销毁。
+    调用每个作用域内局部对象的析构函数。
+2. 保存和恢复上下文：在异常发生时，程序必须保存当前的执行上下文，以便在异常处理的 catch 块中恢复正常的执行。这些操作需要调用底层的系统函数，通常涉及操作系统提供的栈管理机制。
+
+3. 动态类型信息（RTTI）：异常处理中有类型匹配的过程，它会查找哪个 catch 处理器能够处理这种类型的异常。这涉及到使用运行时类型识别（RTTI），增加了额外的开销。
+### 03 Rules of 5 and rule of 0
+
+Rule of Five 适用于你需要管理资源（例如动态分配内存、文件句柄、网络连接等）的类，确保资源在复制和移动过程中不被泄漏或出错。你需要明确的控制资源的生存期和所有权。
+
+Rule of Zero 适用于尽量避免显式资源管理的场景，借助 C++ 标准库中的工具来简化管理。这样代码更具可读性，并且更安全，因为错误的资源管理是 C++ 中常见的 bug 来源之一。
+
+### 04 隐藏的友元
 隐藏的友元是指那些被声明为类的友元的非成员函数，它们在类的内部定义。通常来说，普通的友元函数会在类的外部定义，但隐藏友元则直接在类的定义中出现。由于这些函数位于类的作用域中，它们只能通过**参数依赖查找（Argument Dependent Lookup, ADL）**的方式被调用。
 
 ADL 是一种查找方式，当调用一个函数时，编译器会根据函数参数的类型来查找可能的匹配，通常在参数类型的命名空间或类作用域中查找。因此，隐藏友元函数只能在与相关类型一起被使用时才会被找到和调用，避免了污染全局命名空间的可能性。
 
-隐藏友元的优势
+### 隐藏友元的优势
 1. 减少重载数量：由于隐藏友元只能通过 ADL 被找到，这意味着编译器在函数查找时会考虑的重载数量大大减少，从而加快了编译速度。
 2. 更简洁的错误消息：隐藏友元的设计使得编译器给出的错误消息比普通友元或其他候选方案更短、更易读。
 3. 防止隐式转换：隐藏友元的一个特性是它们无法被调用，如果首先需要发生隐式转换。这意味着这些函数不会无意中被触发那些有可能进行隐式类型转换的调用，这帮助避免了一些难以发现的隐式转换错误。
@@ -197,3 +214,71 @@ ADL 是一种查找方式，当调用一个函数时，编译器会根据函数�
 ADL 机制：在 ADL 查找的过程中，编译器会只在参数的相关命名空间内查找对应的函数。这意味着，如果你要调用一个隐藏的友元函数，编译器要求该函数的参数已经是目标类型，而不是需要通过某种隐式转换来成为目标类型。
 
 防止隐式转换：在调用隐藏友元函数时，如果函数参数需要进行隐式转换，编译器可能不会找到这个隐藏友元，因为它的查找机制是基于实际参数类型的，而不是转换后的类型。因此，如果参数不能直接匹配，隐藏友元就不会被选择为一个有效的候选函数。这有效地阻止了一些可能会引入问题的隐式转换调用。
+```cpp
+#include <algorithm>
+#include <cassert>
+#include <utility>
+
+template <typename T>
+class Array {
+ public:
+  Array(T *array, int size) : array_{array}, size_{size} {}
+
+  Array(const Array &other) : array_{new T[other.size_]}, size_{other.size_} {
+    std::copy_n(other.array_, size_, array_);
+  }
+
+  Array(Array &&other) noexcept
+      : array_{std::exchange(other.array_, nullptr)},
+        size_{std::exchange(other.size_, 0)} {}
+
+  Array &operator=(Array other) noexcept {
+    swap(*this, other);
+    return *this;
+  }
+
+  ~Array() { delete[] array_; }
+
+  // swap functions should never throw
+  friend void swap(Array &left, Array &right) noexcept {
+    using std::swap;
+    swap(left.array_, right.array_);
+    swap(left.size_, right.size_);
+  }
+
+  T &operator[](int index) { return array_[index]; }
+  int size() const { return size_; }
+
+ private:
+  T *array_;
+  int size_;
+};
+
+template <typename T>
+Array<T> make_array(int size) {
+  return Array(new T[size], size);
+}
+
+int main() {
+  auto my_array = make_array<int>(7);
+  auto my_move_constructed_array = std::move(my_array);
+  my_array = std::move(my_move_constructed_array);  // move back
+  auto my_copy_constructed_array = my_array;
+  my_array = my_copy_constructed_array;  // copy back
+  assert(my_array.size() == 7);
+}
+```
+注意：此处没有单独实现移动赋值运算符
+
+Array &operator=(Array other) noexcept 这行代码实现了赋值运算符，其中通过按值传递 Array 参数 other 来实现。在这过程中，以下几个步骤确保了它能够同时支持复制赋值和移动赋值：
+
+按值传递参数：
+
+当传递 Array other 作为参数时，会根据提供的 other 对象是否是左值或右值，调用合适的构造函数。
+1. 如果 other 是左值，则调用复制构造函数，为 other 创建一个副本。
+2. 如果 other 是右值，则调用移动构造函数，将资源从原来的对象转移到 other。
+在赋值操作中使用 swap：
+
+赋值运算符的实现是通过调用 swap(*this, other) 来实现的。swap 函数是一个友元函数，用于交换当前对象与参数 other 的内部资源。
+通过交换，当前对象的资源被交给 other，而 other 原本的资源被赋给当前对象。
+other 是按值传递的，离开作用域时会被销毁，从而自动释放原来当前对象所持有的旧资源。
