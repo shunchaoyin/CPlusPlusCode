@@ -297,3 +297,14 @@ Niebler在2014年首先提出的。其目的是禁用不需要的ADL，使编译
 提到多态性时，很多人会想到动态多态性，即在运行时收集执行函数调用所需的信息。与此相反，静态多态性是在编译时确定调用的。前者的一个优点是，你可以在运行时修改类型列表，从而允许通过插件和库来扩展类层次结构。第二种方法的最大优点是，如果你预先知道类型，则可以获得更好的性能。当然，在第一种情况下，有时你可以期望编译器去虚化(devirtualize)调用，但你不能总指望它这样做。但是，在第二种情况下，编译时间会更长。
 
 鱼与熊掌不可兼得。尽管如此，为类型选择正确的多态性类型还是会有很大的帮助。如果性能是最重要的考虑因素，建议你考虑静态多态性。CRTP是一个可以用来实现它的习语。
+
+### 参考资料
+- [tag_invoke: A general pattern for supporting customisable functions](https://wg21.link/p1895) - Lewis Baker, Eric Niebler, Kirk Shoop, ISO C++ proposal
+- [tag_invoke :: niebloids evolved](https://www.youtube.com/watch?v=Q26YL0J6DU) - Gašper Ažman for the Core C++ Conference, YouTube video
+- [Inheritance Is The Base Class of Evil](https://channel9.msdn.com/Events/GoingNative/2013/Inheritance-Is-The-Base-Class-of-Evil) - Sean Parent, GoingNative 2013 Conference, Channel9 video
+- [Modern C++ Design](https://www.amazon.com/Modern-C-Design-Generic-Programming/dp/0201704315) - Andrei Alexandrescu, Addison-Wesley, 2001
+- [How Non-Member Functions Improve Encapsulation](https://www.drdobbs.com/cpp/how-non-member-functions-improve-encapsu/184401197) - Scott Meyers, Dr. Dobbs article
+- [Returning a Status or a Value](https://abseil.io/docs/cpp/guides/status#returning-a-status-or-a-value) - Status User Guide, Abseil documentation
+- [function_ref](https://github.com/TartanLlama/function_ref) - GitHub repository
+- [How To Use std::visit With Multiple Variants](https://www.bfilipek.com/2018/09/visit-variants.html) - Bartłomiej Filipek, Bartek's coding blog
+- [CppCon 2018: Effective replacement of dynamic polymorphism with std::variant](https://www.youtube.com/watch?v=gKbORJtnVu8) - Mateusz Pusz, YouTube video
