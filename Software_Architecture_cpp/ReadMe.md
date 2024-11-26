@@ -308,3 +308,75 @@ Niebler在2014年首先提出的。其目的是禁用不需要的ADL，使编译
 - [function_ref](https://github.com/TartanLlama/function_ref) - GitHub repository
 - [How To Use std::visit With Multiple Variants](https://www.bfilipek.com/2018/09/visit-variants.html) - Bartłomiej Filipek, Bartek's coding blog
 - [CppCon 2018: Effective replacement of dynamic polymorphism with std::variant](https://www.youtube.com/watch?v=gKbORJtnVu8) - Mateusz Pusz, YouTube video
+
+## Chapter 7: Building and Packaging
+
+### 典型的CMake目录
+cmake：存放cmake脚本
+include：存放公共头文件，通常包含用项目命名的子文件夹
+src： 存放源文件和私有头文件
+test：用于测试
+
+### 目录变量
+PROJECT_SOURCE_DIR： 最近一次运行的project命令的目录
+CMAKE_SOURCE_DIR： 最上层目录
+CMAKE_CURRENT_SOURCE_DIR： 当前的CMakeLists.txt的目录
+CMAKE_CURRENT_LSIT_DIR:　CMAKE_CURRENT_LSIT_FILE的目录。如果当前CMAKE脚本被包含在另一个源代码目录中，他可能与当前源代码目录不同（对于被包含的CMAKE模块而言，很常见）
+
+```cmake
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+```
+通过这种方式，CMake在构建项目时会使用ccache来缓存编译结果，从而加速后续的编译过程。这对于大型项目尤其有用，因为它可以显著减少重复编译相同代码所需的时间，提高开发效率。
+```cmake
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}")
+```
+
+${CMAKE_CURRENT_LIST_DIR}/cmake添加到CMAKE_MODULE_PATH中，CMake会在当前目录下的cmake子目录中查找模块文件。这对于项目中包含自定义的CMake模块文件非常有用，可以确保CMake能够找到并使用这些模块文件。
+
+接下来，list(APPEND CMAKE_PREFIX_PATH "${CMAKE_BINARY_DIR}")这行代码将${CMAKE_BINARY_DIR}目录添加到CMAKE_PREFIX_PATH列表中。CMAKE_PREFIX_PATH是一个CMake变量，用于指定CMake在查找库文件、头文件和其他依赖项时应该搜索的目录列表。
+
+```cmake
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+```
+CMAKE_RUNTIME_OUTPUT_DIRECTORY是一个CMake变量，用于指定生成的可执行文件（如.exe或.out文件）应该放置的目录。
+CMAKE_ARCHIVE_OUTPUT_DIRECTORY是一个CMake变量，用于指定生成的静态库文件（如.a或.lib文件）应该放置的目录
+CMAKE_LIBRARY_OUTPUT_DIRECTORY是一个CMake变量，用于指定生成的共享库文件（如.so、.dylib或.dll文件）应该放置的目录。
+```cmake
+find_package(cpprestsdk CONFIG REQUIRED)
+```
+用于查找并配置cpprestsdk库。cpprestsdk（C++ REST SDK）是一个用于构建跨平台的RESTful应用程序的C++库，提供了丰富的功能来处理HTTP请求、JSON解析等。
+cpprestsdk是要查找的库的名称，CONFIG表示使用配置模式查找库，这通常意味着CMake会查找一个名为cpprestsdkConfig.cmake的配置文件，该文件包含了cpprestsdk库的详细信息。REQUIRED关键字表示这个库是必需的，如果找不到cpprestsdk库，CMake将会停止配置过程并报错。
+```cmake
+include(CommonCompileFlags)
+```
+包含一个名为CommonCompileFlags.cmake的CMake模块文件。通过包含这个模块文件，可以将其中定义的编译标志和设置应用到当前的CMake项目中。
+通过使用include(CommonCompileFlags)，可以将这些通用的编译设置集中管理，并在需要的地方重复使用。这种做法不仅提高了代码的可维护性和可读性，还确保了项目中所有目标的一致性配置。这样，如果需要更改某些编译选项，只需修改CommonCompileFlags.cmake文件，而不需要在每个CMakeLists.txt文件中逐一修改。
+```cmake
+list(
+  APPEND
+  BASE_COMPILE_FLAGS
+  "$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wall;-Wextra;-pedantic;-Werror>"
+  "$<$<CXX_COMPILER_ID:MSVC>:/W4;/WX>")
+```
+使用了生成器表达式（Generator Expressions）来根据不同的编译器设置不同的编译标志。生成器表达式是CMake中的一种特殊语法，用于在生成构建系统时进行条件判断和变量替换。生成器表达式以$<...>的形式表示，可以嵌套使用。
+如果代码使用了$<CXX_COMPILER_ID:MSVC>生成器表达式来检查当前使用的编译器是否为Microsoft Visual C++（MSVC）。如果条件为真，则添加/W4和/WX编译标志。这些标志分别用于启用较高级别的警告（级别4）以及将所有警告视为错误。
+
+```cmake
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  include(CTest)
+  if(BUILD_TESTING)
+    add_subdirectory(test)
+  endif()
+endif()
+```
+首先检查当前项目是否是顶层项目，然后根据配置决定是否包含测试子目录。
+如果当前项目是顶层项目,CTest是CMake的测试模块，提供了一组用于测试的命令和宏。通过包含CTest模块，可以启用项目的测试支持，并定义和运行测试。
+BUILD_TESTING是由CTest模块定义的一个变量，表示是否启用测试构建。如果BUILD_TESTING为真，说明测试构建已启用，此时会执行if(BUILD_TESTING)语句块中的代码。
