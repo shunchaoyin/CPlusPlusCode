@@ -4,3 +4,20 @@
 Practice见代码；
 
 ## 1.3 异常
+
+## 1.4 动态储存空间分配
+二维数组列为5：
+
+```cpp
+char (*c)[5];
+try{
+    c = new char[n][5];
+}
+catch(bad_allc){
+    cerr<<"out of memory"<<endl;
+    exit(1);
+}
+
+
+
+```
