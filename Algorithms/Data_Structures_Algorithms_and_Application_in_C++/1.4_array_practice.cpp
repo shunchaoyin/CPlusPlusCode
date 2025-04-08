@@ -83,6 +83,7 @@ T *changeLength1D(T *array, int oldLength, int newLength)
 // 14 偷懒假设是n*n数组
 template <typename T>
 T **changeLength2D(T **&array, int oldLength, int newLength)
+// 此处返回void更好，array指向新的指针，可以尝试使用rowSize参数，jagged array；
 {
     T **newArray;
     newArray = new int *[newLength];
@@ -123,7 +124,7 @@ int main()
     array2D = new int *[3];
     for (int i = 0; i < 3; i++)
     {
-        array2D[i] = new int[3]{1,2,3};
+        array2D[i] = new int[3]{1, 2, 3};
     }
     int **new2Array = changeLength2D(array2D, 3, 2);
 
