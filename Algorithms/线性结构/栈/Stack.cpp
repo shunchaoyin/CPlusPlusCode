@@ -12,7 +12,7 @@ Stack::Stack()
 
 bool Stack::isEmpty() const
 {
-    return _top < 0;
+    return _top > 0;
 }
 
 bool Stack::isFull() const
