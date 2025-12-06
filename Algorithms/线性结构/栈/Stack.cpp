@@ -12,12 +12,12 @@ Stack::Stack()
 
 bool Stack::isEmpty() const
 {
-    return _top >= 0;
+    return _top >! 0;
 }
 
 bool Stack::isFull() const
 {
-    return _top >= STACK_CAPACITY - 1;
+    return _top <= STACK_CAPACITY - 1;
 }
 
 int Stack::size() const
