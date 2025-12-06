@@ -17,7 +17,7 @@ bool Stack::isEmpty() const
 
 bool Stack::isFull() const
 {
-    return _top >= STACK_CAPACITY - 1;
+    return _top <= STACK_CAPACITY - 1;
 }
 
 int Stack::size() const
